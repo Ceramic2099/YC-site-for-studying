@@ -20,16 +20,78 @@ function get_dt_range(string $date): array
     return $resulat_array;
 }
 
-function get_category_query(): string
+function get_array_or_2dArray ($query): array
 {
-    return "SELECT * FROM `categories`";
+    $num_row = mysqli_num_rows($query);
+    if ($num_row === 1) {
+        $res_array = mysqli_fetch_assoc($query);
+    } else {
+        $res_array = mysqli_fetch_all($query, MYSQLI_ASSOC);
+    }
+
+    return $res_array;
 }
-function get_lots_query(): string
+
+function get_category_query($DB_connect): array
 {
-    return "
-SELECT l.img, c.name_category, l.title, l.start_price, l.date_finish 
+    if (!$DB_connect) {
+        $error = $DB_connect->connect_error;
+        return $error;
+    } else {
+        $cat_query = $DB_connect->query("SELECT * FROM `categories`");
+        if ($cat_query) {
+            $categories = $cat_query->fetch_all(MYSQLI_ASSOC);
+            return $categories;
+        } else {
+            $error = $DB_connect->error;
+            return $error;
+        }
+    }
+}
+
+function get_lots_query($DB_connect): array
+{
+    if (!$DB_connect) {
+        $error = $DB_connect->connect_error;
+        return $error;
+    } else {
+        $cat_query = $DB_connect->query(
+            "
+SELECT l.id, l.img, c.name_category, l.title, l.start_price, l.date_finish 
 FROM lots l JOIN categories c ON l.category_id=c.id 
 WHERE l.date_finish > NOW() 
 ORDER BY l.date_creation DESC
-";
+"
+        );
+        if ($cat_query) {
+            $categories = $cat_query->fetch_all(MYSQLI_ASSOC);
+            return $categories;
+        } else {
+            $error = $DB_connect->error;
+            return $error;
+        }
+    }
+}
+
+function get_lot_query($DB_connect, $id): array
+{
+    if (!$DB_connect) {
+        $error = $DB_connect->connect_error;
+        return $error;
+    } else {
+        $cat_query = $DB_connect->query(
+            "
+SELECT l.img, c.name_category, l.title, l.start_price, l.date_finish, l.lot_description
+FROM lots l JOIN categories c ON l.category_id=c.id 
+WHERE l.id = $id;
+"
+        );
+        if ($cat_query) {
+            $lot = get_array_or_2dArray($cat_query);
+            return $lot;
+        } else {
+            $error = $DB_connect->error;
+            return $error;
+        }
+    }
 }

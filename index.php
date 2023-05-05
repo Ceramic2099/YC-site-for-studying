@@ -5,20 +5,9 @@ require_once 'data.php';
 require_once 'function.php';
 require_once 'sql_init.php';
 
-if (!$DB_connect) {
-    $error = $DB_connect->connect_error;
-}
+$categories = get_category_query($DB_connect);
 
-if(!$cat_query = $DB_connect->query(get_category_query())) {
-    $error = $DB_connect->error;
-}
-$categories = $cat_query->fetch_all(MYSQLI_ASSOC);
-
-if(!$lots_query = $DB_connect->query(get_lots_query())) {
-    $error = $DB_connect->error;
-}
-
-$lots = $lots_query->fetch_all(MYSQLI_ASSOC);
+$lots = get_lots_query($DB_connect);
 
 $main_content = include_template('main.php', ['categories' => $categories, 'lots' => $lots]);
 
