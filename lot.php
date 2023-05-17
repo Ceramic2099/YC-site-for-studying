@@ -20,7 +20,7 @@ if ($id) {
     print($page_404);
 }
 
-$main_content = include_template('lot-detail.php', ['categories' => $categories, 'lot' => $lot]);
+$main_content = include_template('lot-detail.php', ['lot' => $lot]);
 
 $layout_content = include_template('layout.php', [
     'content' => $main_content,

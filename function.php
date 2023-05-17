@@ -95,3 +95,36 @@ WHERE l.id = $id;
         }
     }
 }
+
+function category_valid ($id, $allow_list) {
+    if (!in_array($id, $allow_list)) {
+        return "Указана не существующая категория";
+    }
+    return null;
+}
+
+function number_valid ($num) {
+    if (!empty(intval($num))) {
+        if (is_int($num) && $num > 0) {
+        return null;
+        }
+    } else {
+        return "Содержимое поля должно быть целым числом больше нуля";
+    }
+}
+
+function date_valid ($date) {
+    if (is_date_valid($date)) {
+        $data_diff = (new DateTime())->diff(new DateTime($date))->format('%d');
+
+        if ($data_diff < 1) {
+            return "Дата должна быть больше текущей не менее чем на один день";
+        }
+    } else {
+        return "Содержимое поля 'дата завершения' должно быть датой в формате 'ГГГГ-ММ-ДД'";
+    }
+}
+
+function get_query_create_lot ($user_id) {
+    return "INSERT INTO lots (title, category_id, lot_description, start_price, step, date_finish, img, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, $user_id);";
+}
