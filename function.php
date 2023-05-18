@@ -20,7 +20,7 @@ function get_dt_range(string $date): array
     return $resulat_array;
 }
 
-function get_array_or_2dArray ($query): array
+function get_array_or_2dArray($query): array
 {
     $num_row = mysqli_num_rows($query);
     if ($num_row === 1) {
@@ -96,24 +96,27 @@ WHERE l.id = $id;
     }
 }
 
-function category_valid ($id, $allow_list) {
+function category_valid($id, $allow_list)
+{
     if (!in_array($id, $allow_list)) {
         return "Указана не существующая категория";
     }
     return null;
 }
 
-function number_valid ($num) {
+function number_valid($num)
+{
     if (!empty(intval($num))) {
         if (is_int($num) && $num > 0) {
-        return null;
+            return null;
         }
     } else {
         return "Содержимое поля должно быть целым числом больше нуля";
     }
 }
 
-function date_valid ($date) {
+function date_valid($date)
+{
     if (is_date_valid($date)) {
         $data_diff = (new DateTime())->diff(new DateTime($date))->format('%d');
 
@@ -125,6 +128,69 @@ function date_valid ($date) {
     }
 }
 
-function get_query_create_lot ($user_id) {
-    return "INSERT INTO lots (title, category_id, lot_description, start_price, step, date_finish, img, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, $user_id);";
+function valid_email($email, $existing_email_list): ?string
+{
+    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        if (in_array($email, $existing_email_list)) {
+            return "Пользовательн с таким email уже существует";
+        } else {
+            return null;
+        }
+    }
+
+    return "E-mail должен быть корректным";
+}
+
+function valid_name($name, $existing_name_list): ?string
+{
+    if (in_array($name, $existing_name_list)) {
+        return "Пользовательн с таким именем уже существует";
+    } else {
+        return null;
+    }
+}
+
+function user_query($DB_connect)
+{
+    if (!$DB_connect) {
+        $error = $DB_connect->connect_error;
+        return $error;
+    } else {
+        $email_query = $DB_connect->query(
+            "
+SELECT *
+FROM users;
+"
+        );
+        if ($email_query) {
+            $existing_email_list = get_array_or_2dArray($email_query);
+            return $existing_email_list;
+        } else {
+            $error = $DB_connect->error;
+            return $error;
+        }
+    }
+}
+
+function field_validation($post_array, $required, $rules): array
+{
+    $errors = [];
+    foreach ($post_array as $field => $value) {
+        if (isset($rules[$field])) {
+            $rule = $rules[$field];
+            $errors[$field] = $rule($value);
+        }
+        if (in_array($field, $required) && empty($value)) {
+            $errors[$field] = "Поле $field нужно заполнить";
+        }
+    }
+    return $errors;
+}
+
+function length_valid($value, $min, $max)
+{
+    $len = strlen($value);
+    if ($len < $min || $len > $max) {
+        return "Значение должно быть от $min до $max симовлов.";
+    }
 }

@@ -11,12 +11,12 @@ INSERT INTO `users`(`email`, `user_name`, `user_password`, `contacts`)
 VALUES ('boba@mail.com','Boba','123456','88005553536');
 
 INSERT INTO `lots`(`title`, `lot_description`, `img`, `start_price`, `date_finish`, `step`, `user_id`, `category_id`)
-VALUES ('2014 Rossignol District Snowboard','Мягкий универсальный сноуборд для начинающих','img/lot-1.jpg', 10990, '2023-05-10', 500, 1, 1),
-       ('DC Ply Mens 2016/2017 Snowboard','Мягкий универсальный сноуборд для начинающих','img/lot-2.jpg', 15999, '2023-05-15', 1000, 2, 1),
-       ('Крепления Union Contact Pro 2015 года размер L/XL','Крипления для фрирайда средней жесткости','img/lot-3.jpg', 8000, '2023-05-20', 500, 1, 2),
-       ('Ботинки для сноуборда DC Mutiny Charocal','Универсальные ботинки средней жесткости','img/lot-4.jpg', 10999, '2023-05-25', 700, 2, 3),
-       ('Куртка для сноуборда DC Mutiny Charocal','Куртка с мембранной 20000\20000','img/lot-5.jpg', 7500, '2023-05-05', 300, 1, 4),
-       ('Маска Oakley Canopy','Мужская маска среднего размера cat4','img/lot-6.jpg', 5400, '2023-05-20', 200, 2, 6);
+VALUES ('2014 Rossignol District Snowboard','Мягкий универсальный сноуборд для начинающих','uploads/lot-1.jpg', 10990, '2023-06-10', 500, 1, 1),
+       ('DC Ply Mens 2016/2017 Snowboard','Мягкий универсальный сноуборд для начинающих','uploads/lot-2.jpg', 15999, '2023-06-15', 1000, 2, 1),
+       ('Крепления Union Contact Pro 2015 года размер L/XL','Крипления для фрирайда средней жесткости','uploads/lot-3.jpg', 8000, '2023-06-20', 500, 1, 2),
+       ('Ботинки для сноуборда DC Mutiny Charocal','Универсальные ботинки средней жесткости','uploads/lot-4.jpg', 10999, '2023-06-25', 700, 2, 3),
+       ('Куртка для сноуборда DC Mutiny Charocal','Куртка с мембранной 20000\20000','uploads/lot-5.jpg', 7500, '2023-06-05', 300, 1, 4),
+       ('Маска Oakley Canopy','Мужская маска среднего размера cat4','uploads/lot-6.jpg', 5400, '2023-06-20', 200, 2, 6);
 
 INSERT INTO `bets`(`price_bet`, `user_id`, `lot_id`) VALUES (7000, 1, 1);
 INSERT INTO `bets`(`price_bet`, `user_id`, `lot_id`) VALUES (10000, 1, 2);

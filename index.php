@@ -9,9 +9,9 @@ $categories = get_category_query($DB_connect);
 
 $lots = get_lots_query($DB_connect);
 
-$main_content = include_template('main.php', ['categories' => $categories, 'lots' => $lots]);
+$main_content = include_template('main-tmps.php', ['categories' => $categories, 'lots' => $lots]);
 
-$layout_content = include_template('layout.php', [
+$layout_content = include_template('layout-tmps.php', [
     'content' => $main_content,
     'title' => 'YetiCave - Главная страница',
     'is_auth' => $is_auth,
