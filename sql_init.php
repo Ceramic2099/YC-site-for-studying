@@ -1,9 +1,6 @@
 <?php
 
-$host = 'localhost';
-$name = 'root';
-$password = '7118335';
-$db = 'yeticave';
+require_once 'personal_data.php';
 
 $DB_connect = new mysqli;
 $DB_connect->connect($host,$name,$password,$db);
