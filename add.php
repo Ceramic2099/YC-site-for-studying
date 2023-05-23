@@ -1,15 +1,21 @@
 <?php
 
 require_once 'helpers.php';
-require_once 'data.php';
 require_once 'function.php';
 require_once 'sql_init.php';
 
+session_start();
+
 $categories = get_category_query($DB_connect);
-
 $categories_id = array_column($categories, 'id');
-
 $main_content = include_template('add-lot-tmps.php', ['categories' => $categories]);
+$title = 'Yeticave - Страница добавления лота';
+
+if (empty($_SESSION)) {
+    $main_content = include_template('403-tmps.php');
+    http_response_code(403);
+    $title = 403;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $required = ['category', 'lot-name', 'message', 'lot-rate', 'lot-step', 'lot-date'];
@@ -38,16 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'lot-step' => FILTER_DEFAULT,
         'lot-date' => FILTER_DEFAULT,
     ]);
-
-    /*foreach ($lot as $field => $value) {
-        if (isset($rules[$field])) {
-            $rule = $rules[$field];
-            $errors[$field] = $rule($value);
-        }
-        if (in_array($field, $required) && empty($value)) {
-            $errors[$field] = "Поле $field нужно заполнить";
-        }
-    }*/
 
     $errors = field_validation($lot, $required, $rules);
 
@@ -102,9 +98,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $layout_content = include_template('layout-tmps.php', [
     'content' => $main_content,
-    'title' => 'Yeticave - Страница добавления лота',
-    'is_auth' => $is_auth,
-    'user_name' => $user_name,
+    'title' => $title,
     'categories' => $categories,
 ]);
 

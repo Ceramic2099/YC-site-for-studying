@@ -128,17 +128,23 @@ function date_valid($date)
     }
 }
 
-function valid_email($email, $existing_email_list): ?string
+function valid_email($email, $existing_email_list = 0): ?string
 {
-    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        if (in_array($email, $existing_email_list)) {
-            return "Пользовательн с таким email уже существует";
-        } else {
-            return null;
+    if ($existing_email_list !== 0) {
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            if (in_array($email, $existing_email_list)) {
+                return "Пользовательн с таким email уже существует";
+            } else {
+                return null;
+            }
         }
     }
 
-    return "E-mail должен быть корректным";
+    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return null;
+    } else {
+        return "E-mail должен быть корректным";
+    }
 }
 
 function valid_name($name, $existing_name_list): ?string

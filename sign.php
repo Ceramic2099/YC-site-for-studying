@@ -5,9 +5,17 @@ require_once 'data.php';
 require_once 'function.php';
 require_once 'sql_init.php';
 
-$categories = get_category_query($DB_connect);
+session_start();
 
+$categories = get_category_query($DB_connect);
 $main_content = include_template('sign-tmps.php');
+$title = 'Yeticave - Страница добавления лота';
+
+if (!empty($_SESSION)) {
+    $main_content = include_template('403-tmps.php');
+    http_response_code(403);
+    $title = 403;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $required = ['email', 'password', 'name', 'message'];
@@ -52,6 +60,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = mysqli_stmt_execute($stmt);
 
         if ($result) {
+            $user_id = mysqli_insert_id($DB_connect);
+            $user_in_db = $DB_connect->execute_query("SELECT user_name FROM users WHERE id = $user_id;")->fetch_assoc();
+            $issession = session_start();
+            $_SESSION['name'] = $user_in_db['user_name'];
+            $_SESSION['id'] = $user_id;
+
             header("location: /index.php");
         } else {
             $error = mysqli_error($DB_connect);
@@ -61,9 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $layout_content = include_template('layout-tmps.php', [
     'content' => $main_content,
-    'title' => 'YetiCave - Страница регистрации',
-    'is_auth' => $is_auth,
-    'user_name' => $user_name,
+    'title' => $title,
     'categories' => $categories,
 ]);
 

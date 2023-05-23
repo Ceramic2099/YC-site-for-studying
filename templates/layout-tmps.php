@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title><?=$title;?></title>
+    <title><?= $title; ?></title>
     <link href="../css/normalize.min.css" rel="stylesheet">
     <link href="../css/style.css" rel="stylesheet">
     <link href="../css/flatpickr.min.css" rel="stylesheet">
@@ -25,11 +25,11 @@
             <nav class="user-menu">
 
                 <!-- здесь должен быть PHP код для показа меню и данных пользователя -->
-                <?php if ($is_auth): ?>
+                <?php if (!empty($_SESSION)): ?>
                     <div class="user-menu__logged">
-                        <p><?=$user_name;?></p>
+                        <p><?=$_SESSION['name'];?></p>
                         <a class="user-menu__bets" href="pages/my-bets.html">Мои ставки</a>
-                        <a class="user-menu__logout" href="#">Выход</a>
+                        <a class="user-menu__logout" href="/logout.php">Выход</a>
                     </div>
                 <?php else: ?>
                     <ul class="user-menu__list">
@@ -37,7 +37,7 @@
                             <a href="/sign.php">Регистрация</a>
                         </li>
                         <li class="user-menu__item">
-                            <a href="#">Вход</a>
+                            <a href="/login.php">Вход</a>
                         </li>
                     </ul>
                 <?php endif; ?>

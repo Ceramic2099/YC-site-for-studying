@@ -1,8 +1,8 @@
 <?php
 
-$is_auth = rand(0, 1);
+//$is_auth = 0;
 
-$user_name = 'Duglas2099'; // укажите здесь ваше имя
+//$user_name = 'Duglas2099'; // укажите здесь ваше имя
 
 /* $categories = [
     "boards" => "Доски и лыжи",
