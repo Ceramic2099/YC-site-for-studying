@@ -200,3 +200,41 @@ function length_valid($value, $min, $max)
         return "Значение должно быть от $min до $max симовлов.";
     }
 }
+
+/**
+ * @param $conn mysqli
+ * Возвращает количество лотов
+ */
+function get_count_lots($conn, $words) {
+    $sql = "SELECT COUNT(*) as cnt FROM lots WHERE MATCH(title, lot_description) AGAINST (?);";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('s', $words);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if (!empty($res)) {
+        return $res->fetch_assoc()['cnt'];
+    }
+    return $conn->error;
+}
+
+/**
+ * @param $conn mysqli
+ * Возвращает массив лотов соответствующих поиску
+ */
+function get_found_lots ($conn, $words, $limit, $offset) {
+    $sql = "SELECT l.id, l.title, l.start_price, l.img, l.date_finish, c.name_category 
+    FROM lots l
+    JOIN categories c 
+    ON l.category_id = c.id
+    WHERE MATCH(title, lot_description) AGAINST(?) ORDER BY l.date_creation DESC LIMIT $limit OFFSET $offset
+    ;";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('s', $words);
+    $stmt->execute();
+    $res = $stmt->get_result();
+
+    if (!empty($res)) {
+        return get_array_or_2dArray($res);
+    }
+    return $conn->error;
+}

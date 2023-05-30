@@ -8,7 +8,7 @@ CREATE TABLE users (
     date_registration DATETIME DEFAULT CURRENT_TIMESTAMP,
     email VARCHAR(128) UNIQUE NOT NULL,
     user_name VARCHAR(128),
-    user_password CHAR(12),
+    user_password VARCHAR(128),
     contacts TEXT
     );
 
@@ -28,6 +28,8 @@ CREATE TABLE lots (
     FOREIGN KEY (winner_id) REFERENCES users(id),
     FOREIGN KEY (category_id) REFERENCES categories(id)
 );
+
+CREATE FULLTEXT INDEX lots_search ON lots(title, lot_description);
 
 CREATE TABLE bets (
     id INT AUTO_INCREMENT PRIMARY KEY,
