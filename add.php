@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ['categories' => $categories, 'lot' => $lot, 'errors' => $errors]
         );
     } else {
-        $user = 1;
+        $user = $_SESSION['id'];
         $sql = "INSERT INTO lots (title, category_id, lot_description, start_price, step, date_finish, img, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
         $stmt = $DB_connect->prepare($sql);
         $stmt->bind_param('sisiissi', $lot['lot-name'], $lot['category'], $lot['message'], $lot['lot-rate'], $lot['lot-step'], $lot['lot-date'], $lot['path'], $user);

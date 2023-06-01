@@ -81,8 +81,9 @@ function get_lot_query($DB_connect, $id): array
     } else {
         $cat_query = $DB_connect->query(
             "
-SELECT l.img, c.name_category, l.title, l.start_price, l.date_finish, l.lot_description
-FROM lots l JOIN categories c ON l.category_id=c.id 
+SELECT l.id, l.img, c.name_category, l.step, l.title, l.start_price, l.date_finish, l.lot_description
+FROM lots l 
+JOIN categories c ON l.category_id=c.id 
 WHERE l.id = $id;
 "
         );
@@ -205,7 +206,8 @@ function length_valid($value, $min, $max)
  * @param $conn mysqli
  * Возвращает количество лотов
  */
-function get_count_lots($conn, $words) {
+function get_count_lots($conn, $words)
+{
     $sql = "SELECT COUNT(*) as cnt FROM lots WHERE MATCH(title, lot_description) AGAINST (?);";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param('s', $words);
@@ -221,7 +223,8 @@ function get_count_lots($conn, $words) {
  * @param $conn mysqli
  * Возвращает массив лотов соответствующих поиску
  */
-function get_found_lots ($conn, $words, $limit, $offset) {
+function get_found_lots($conn, $words, $limit, $offset)
+{
     $sql = "SELECT l.id, l.title, l.start_price, l.img, l.date_finish, c.name_category 
     FROM lots l
     JOIN categories c 
@@ -237,4 +240,45 @@ function get_found_lots ($conn, $words, $limit, $offset) {
         return get_array_or_2dArray($res);
     }
     return $conn->error;
+}
+
+function price_bet_valid($price, $last_bet): ?string
+{
+    if (!empty(intval($price)) > 0) {
+        if ($price > $last_bet) {
+            return null;
+        }
+    }
+    return "Содержимое поля должно быть целым числом больше нуля и быть больше чем последняя ставка";
+}
+
+function get_bet_query($DB_connect, $id): array
+{
+    if (!$DB_connect) {
+        $error = $DB_connect->connect_error;
+        return $error;
+    } else {
+        $cat_query = $DB_connect->query(
+            "
+SELECT DATE_FORMAT(b.date_bet, '%d.%m.%y в %H:%i') as date_bet, b.price_bet, u.user_name
+FROM bets b 
+JOIN users u ON b.user_id = u.id
+WHERE lot_id = $id
+ORDER BY b.date_bet DESC
+;"
+        );
+        if ($cat_query) {
+            $num_row = mysqli_num_rows($cat_query);
+            if ($num_row === 1) {
+                $res_array[0] = mysqli_fetch_assoc($cat_query);
+            } else {
+                $res_array = mysqli_fetch_all($cat_query, MYSQLI_ASSOC);
+            }
+
+            return $res_array;
+        } else {
+            $error = $DB_connect->error;
+            return $error;
+        }
+    }
 }
