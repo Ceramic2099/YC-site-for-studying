@@ -258,27 +258,110 @@ function get_bet_query($DB_connect, $id): array
         $error = $DB_connect->connect_error;
         return $error;
     } else {
-        $cat_query = $DB_connect->query(
+        $bets_query = $DB_connect->query(
             "
 SELECT DATE_FORMAT(b.date_bet, '%d.%m.%y в %H:%i') as date_bet, b.price_bet, u.user_name
 FROM bets b 
 JOIN users u ON b.user_id = u.id
 WHERE lot_id = $id
-ORDER BY b.date_bet DESC
+ORDER BY b.date_bet DESC LIMIT 10
 ;"
         );
-        if ($cat_query) {
-            $num_row = mysqli_num_rows($cat_query);
+        if ($bets_query) {
+            $num_row = mysqli_num_rows($bets_query);
             if ($num_row === 1) {
-                $res_array[0] = mysqli_fetch_assoc($cat_query);
+                $res_array[0] = mysqli_fetch_assoc($bets_query);
             } else {
-                $res_array = mysqli_fetch_all($cat_query, MYSQLI_ASSOC);
+                $res_array = mysqli_fetch_all($bets_query, MYSQLI_ASSOC);
             }
 
             return $res_array;
         } else {
             $error = $DB_connect->error;
             return $error;
+        }
+    }
+}
+
+function get_lots_wo_winners($DB_connect)
+{
+    if (!$DB_connect) {
+        $error = $DB_connect->connect_error;
+        return $error;
+    } else {
+        $lots_query = $DB_connect->query(
+            "
+SELECT id, title
+FROM lots
+WHERE date_finish <= NOW() AND winner_id IS NULL
+;"
+        );
+        if ($lots_query) {
+            $num_row = mysqli_num_rows($lots_query);
+            if ($num_row === 1) {
+                $res_array[0] = mysqli_fetch_assoc($lots_query);
+            } else {
+                $res_array = mysqli_fetch_all($lots_query, MYSQLI_ASSOC);
+            }
+
+            return $res_array;
+        } else {
+            return $DB_connect->error;
+        }
+    }
+}
+
+function get_last_bet($DB_connect, $id)
+{
+    if (!$DB_connect) {
+        $error = $DB_connect->connect_error;
+        return $error;
+    } else {
+        $bet_query = $DB_connect->query(
+            "
+SELECT b.lot_id, b.user_id, MAX(price_bet) as max, u.email, u.user_name, l.title
+FROM bets b
+JOIN users u ON user_id = u.id
+JOIN lots l ON lot_id = l.id
+WHERE lot_id = $id
+GROUP BY lot_id, user_id 
+ORDER BY max DESC LIMIT 1
+;"
+        );
+        if ($bet_query) {
+            $num_row = mysqli_num_rows($bet_query);
+            if ($num_row === 1) {
+                $res_array[0] = mysqli_fetch_assoc($bet_query);
+            } else {
+                $res_array = mysqli_fetch_all($bet_query, MYSQLI_ASSOC);
+            }
+
+            return $res_array;
+        } else {
+            return $DB_connect->error;
+        }
+    }
+}
+
+/**
+ * @param $DB_connect mysqli
+ */
+function add_winners($DB_connect, $lot_id, $user_id)
+{
+    if (!$DB_connect) {
+        $error = $DB_connect->connect_error;
+        return $error;
+    } else {
+        $winner_query =
+            "
+UPDATE lots
+SET winner_id = $user_id
+WHERE id = $lot_id
+;";
+        if ($DB_connect->query($winner_query) === true) {
+            return null;
+        } else {
+            return $DB_connect->error;
         }
     }
 }
