@@ -32,8 +32,6 @@ if ($lots_wo_winners) {
     }
 }
 
-print_r($list_of_last_bet);
-
 if ($list_of_last_bet) {
     foreach ($list_of_last_bet as $key => $value) {
         add_winners($DB_connect, $value['lot_id'], $value['user_id']);

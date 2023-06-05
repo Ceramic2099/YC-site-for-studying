@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Приводит число к денежному формату
+ * @param int $number
+ * @return string
+ */
 function price(int $number): string
 {
     if (ceil($number) < 1000) {
@@ -9,18 +14,31 @@ function price(int $number): string
     return number_format($number, 0, ".", " ") . " ₽";
 }
 
+/**
+ * @param string $date
+ * @return array|string[]
+ * @throws Exception
+ * Сравнивает даты и возвращает разницу в часах и минутах
+ */
 function get_dt_range(string $date): array
 {
+    if ((new DateTime() >= new DateTime($date))) {
+        return ["00", "00"];
+    }
     $data_diff = (new DateTime())->diff(new DateTime($date))->format('%d-%H-%I');
     $result_date = explode('-', $data_diff);
     $hours = str_pad($result_date[0] * 24 + $result_date[1], 2, "0", STR_PAD_LEFT);
-    $mintes = str_pad(intval($result_date[2]), 2, "0", STR_PAD_LEFT);
-    $resulat_array = array($hours, $mintes);
+    $minutes = str_pad(intval($result_date[2]), 2, "0", STR_PAD_LEFT);
 
-    return $resulat_array;
+    return array($hours, $minutes);
 }
 
-function get_array_or_2dArray($query): array
+/**
+ * @param mysqli_result $query
+ * @return array
+ * В зависимости от запроса возвращает обыный или двумерный массив
+ */
+function get_array_or_2dArray(mysqli_result $query): array
 {
     $num_row = mysqli_num_rows($query);
     if ($num_row === 1) {
@@ -32,28 +50,34 @@ function get_array_or_2dArray($query): array
     return $res_array;
 }
 
-function get_category_query($DB_connect): array
+/**
+ * @param $DB_connect mysqli
+ * @return array|string
+ * Возвращает массив категорий
+ */
+function get_category_query(mysqli $DB_connect): array|string
 {
     if (!$DB_connect) {
-        $error = $DB_connect->connect_error;
-        return $error;
+        return $DB_connect->connect_error;
     } else {
         $cat_query = $DB_connect->query("SELECT * FROM `categories`");
         if ($cat_query) {
-            $categories = $cat_query->fetch_all(MYSQLI_ASSOC);
-            return $categories;
+            return $cat_query->fetch_all(MYSQLI_ASSOC);
         } else {
-            $error = $DB_connect->error;
-            return $error;
+            return $DB_connect->error;
         }
     }
 }
 
-function get_lots_query($DB_connect): array
+/**
+ * @param $DB_connect mysqli
+ * @return array|string
+ * Возвращает массив лотов
+ */
+function get_lots_query(mysqli $DB_connect): array|string
 {
     if (!$DB_connect) {
-        $error = $DB_connect->connect_error;
-        return $error;
+        return $DB_connect->connect_error;
     } else {
         $cat_query = $DB_connect->query(
             "
@@ -64,20 +88,23 @@ ORDER BY l.date_creation DESC
 "
         );
         if ($cat_query) {
-            $categories = $cat_query->fetch_all(MYSQLI_ASSOC);
-            return $categories;
+            return $cat_query->fetch_all(MYSQLI_ASSOC);
         } else {
-            $error = $DB_connect->error;
-            return $error;
+            return $DB_connect->error;
         }
     }
 }
 
-function get_lot_query($DB_connect, $id): array
+/**
+ * @param $DB_connect mysqli
+ * @param int $id
+ * @return array|string
+ * Возвращает лоты выбранного пользователя
+ */
+function get_lot_query(mysqli $DB_connect, int $id): array|string
 {
     if (!$DB_connect) {
-        $error = $DB_connect->connect_error;
-        return $error;
+        return $DB_connect->connect_error;
     } else {
         $cat_query = $DB_connect->query(
             "
@@ -88,16 +115,20 @@ WHERE l.id = $id;
 "
         );
         if ($cat_query) {
-            $lot = get_array_or_2dArray($cat_query);
-            return $lot;
+            return get_array_or_2dArray($cat_query);
         } else {
-            $error = $DB_connect->error;
-            return $error;
+            return $DB_connect->error;
         }
     }
 }
 
-function category_valid($id, $allow_list)
+/**
+ * @param int $id
+ * @param array $allow_list
+ * @return string|null
+ * Валидирует поле для категории
+ */
+function category_valid(int $id, array $allow_list): ?string
 {
     if (!in_array($id, $allow_list)) {
         return "Указана не существующая категория";
@@ -105,7 +136,12 @@ function category_valid($id, $allow_list)
     return null;
 }
 
-function number_valid($num)
+/**
+ * @param string $num
+ * @return string|void|null
+ * Валидирует моле номера
+ */
+function number_valid(string $num)
 {
     if (!empty(intval($num))) {
         if (is_int($num) && $num > 0) {
@@ -116,7 +152,13 @@ function number_valid($num)
     }
 }
 
-function date_valid($date)
+/**
+ * @param string $date
+ * @return string|void
+ * @throws Exception
+ * Валидирует дату
+ */
+function date_valid(string $date)
 {
     if (is_date_valid($date)) {
         $data_diff = (new DateTime())->diff(new DateTime($date))->format('%d');
@@ -129,7 +171,13 @@ function date_valid($date)
     }
 }
 
-function valid_email($email, $existing_email_list = 0): ?string
+/**
+ * @param $email
+ * @param int|array $existing_email_list
+ * @return string|null
+ * Валидирует емайл
+ */
+function valid_email($email, int|array $existing_email_list = 0): ?string
 {
     if ($existing_email_list !== 0) {
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -148,7 +196,13 @@ function valid_email($email, $existing_email_list = 0): ?string
     }
 }
 
-function valid_name($name, $existing_name_list): ?string
+/**
+ * @param string $name
+ * @param array $existing_name_list
+ * @return string|null
+ * Валидирует имя пользователя
+ */
+function valid_name(string $name, array $existing_name_list): ?string
 {
     if (in_array($name, $existing_name_list)) {
         return "Пользовательн с таким именем уже существует";
@@ -157,11 +211,15 @@ function valid_name($name, $existing_name_list): ?string
     }
 }
 
-function user_query($DB_connect)
+/**
+ * @param $DB_connect mysqli
+ * @return array|mixed
+ * Возвращает массив пользователей
+ */
+function user_query(mysqli $DB_connect): mixed
 {
     if (!$DB_connect) {
-        $error = $DB_connect->connect_error;
-        return $error;
+        return $DB_connect->connect_error;
     } else {
         $email_query = $DB_connect->query(
             "
@@ -170,19 +228,24 @@ FROM users;
 "
         );
         if ($email_query) {
-            $existing_email_list = get_array_or_2dArray($email_query);
-            return $existing_email_list;
+            return get_array_or_2dArray($email_query);
         } else {
-            $error = $DB_connect->error;
-            return $error;
+            return $DB_connect->error;
         }
     }
 }
 
-function field_validation($post_array, $required, $rules): array
+/**
+ * @param array $parameter_array
+ * @param array $required
+ * @param array $rules
+ * @return array
+ * Валидирует параметр запроса по заданным правилам.
+ */
+function field_validation(array $parameter_array, array $required, array $rules): array
 {
     $errors = [];
-    foreach ($post_array as $field => $value) {
+    foreach ($parameter_array as $field => $value) {
         if (isset($rules[$field])) {
             $rule = $rules[$field];
             $errors[$field] = $rule($value);
@@ -194,7 +257,14 @@ function field_validation($post_array, $required, $rules): array
     return $errors;
 }
 
-function length_valid($value, $min, $max)
+/**
+ * @param string $value
+ * @param int $min
+ * @param int $max
+ * @return string|void
+ * Валидирует длинну занчения поля
+ */
+function length_valid(string $value, int $min, int $max)
 {
     $len = strlen($value);
     if ($len < $min || $len > $max) {
@@ -204,9 +274,11 @@ function length_valid($value, $min, $max)
 
 /**
  * @param $conn mysqli
+ * @param string $words
+ * @return mixed|string
  * Возвращает количество лотов
  */
-function get_count_lots($conn, $words)
+function get_count_lots(mysqli $conn, string $words): mixed
 {
     $sql = "SELECT COUNT(*) as cnt FROM lots WHERE MATCH(title, lot_description) AGAINST (?);";
     $stmt = $conn->prepare($sql);
@@ -221,30 +293,39 @@ function get_count_lots($conn, $words)
 
 /**
  * @param $conn mysqli
+ * @param string $words
+ * @param int $limit
+ * @param int $offset
  * Возвращает массив лотов соответствующих поиску
  */
-function get_found_lots($conn, $words, $limit, $offset)
+function get_found_lots(mysqli $conn, string $words, int $limit, int $offset): array|string
 {
     $sql = "SELECT l.id, l.title, l.start_price, l.img, l.date_finish, c.name_category 
     FROM lots l
     JOIN categories c 
     ON l.category_id = c.id
-    WHERE MATCH(title, lot_description) AGAINST(?) ORDER BY l.date_creation DESC LIMIT $limit OFFSET $offset
+    WHERE (MATCH(title, lot_description) AGAINST(?) OR name_category LIKE (?)) AND l.date_finish >= NOW() ORDER BY l.date_creation DESC LIMIT $limit OFFSET $offset
     ;";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param('s', $words);
+    $stmt->bind_param('ss', $words, $words);
     $stmt->execute();
     $res = $stmt->get_result();
 
     if (!empty($res)) {
-        return get_array_or_2dArray($res);
+        return mysqli_fetch_all($res, MYSQLI_ASSOC);
     }
     return $conn->error;
 }
 
-function price_bet_valid($price, $last_bet): ?string
+/**
+ * @param string $price
+ * @param int $last_bet
+ * @return string|null
+ * Валидирует ставку
+ */
+function price_bet_valid(string $price, int $last_bet): ?string
 {
-    if (!empty(intval($price)) > 0) {
+    if (!empty($price) > 0) {
         if ($price > $last_bet) {
             return null;
         }
@@ -252,11 +333,16 @@ function price_bet_valid($price, $last_bet): ?string
     return "Содержимое поля должно быть целым числом больше нуля и быть больше чем последняя ставка";
 }
 
-function get_bet_query($DB_connect, $id): array
+/**
+ * @param $DB_connect mysqli
+ * @param int $id
+ * @return array|string
+ * Возвращает массив лотов со ставками пользователя
+ */
+function get_bet_query(mysqli $DB_connect, int $id): array|string
 {
     if (!$DB_connect) {
-        $error = $DB_connect->connect_error;
-        return $error;
+        return $DB_connect->connect_error;
     } else {
         $bets_query = $DB_connect->query(
             "
@@ -268,26 +354,22 @@ ORDER BY b.date_bet DESC LIMIT 10
 ;"
         );
         if ($bets_query) {
-            $num_row = mysqli_num_rows($bets_query);
-            if ($num_row === 1) {
-                $res_array[0] = mysqli_fetch_assoc($bets_query);
-            } else {
-                $res_array = mysqli_fetch_all($bets_query, MYSQLI_ASSOC);
-            }
-
-            return $res_array;
+            return mysqli_fetch_all($bets_query, MYSQLI_ASSOC);
         } else {
-            $error = $DB_connect->error;
-            return $error;
+            return $DB_connect->error;
         }
     }
 }
 
-function get_lots_wo_winners($DB_connect)
+/**
+ * @param $DB_connect mysqli
+ * @return array|mixed
+ * Возвращает массив лотов без победителя
+ */
+function get_lots_wo_winners(mysqli $DB_connect): mixed
 {
     if (!$DB_connect) {
-        $error = $DB_connect->connect_error;
-        return $error;
+        return $DB_connect->connect_error;
     } else {
         $lots_query = $DB_connect->query(
             "
@@ -297,25 +379,23 @@ WHERE date_finish <= NOW() AND winner_id IS NULL
 ;"
         );
         if ($lots_query) {
-            $num_row = mysqli_num_rows($lots_query);
-            if ($num_row === 1) {
-                $res_array[0] = mysqli_fetch_assoc($lots_query);
-            } else {
-                $res_array = mysqli_fetch_all($lots_query, MYSQLI_ASSOC);
-            }
-
-            return $res_array;
+            return mysqli_fetch_all($lots_query, MYSQLI_ASSOC);
         } else {
             return $DB_connect->error;
         }
     }
 }
 
-function get_last_bet($DB_connect, $id)
+/**
+ * @param $DB_connect mysqli
+ * @param int $id
+ * @return array|mixed
+ * Возвращает массив последних ставок по лотам
+ */
+function get_last_bet(mysqli $DB_connect, int $id)
 {
     if (!$DB_connect) {
-        $error = $DB_connect->connect_error;
-        return $error;
+        return $DB_connect->connect_error;
     } else {
         $bet_query = $DB_connect->query(
             "
@@ -329,14 +409,7 @@ ORDER BY max DESC LIMIT 1
 ;"
         );
         if ($bet_query) {
-            $num_row = mysqli_num_rows($bet_query);
-            if ($num_row === 1) {
-                $res_array[0] = mysqli_fetch_assoc($bet_query);
-            } else {
-                $res_array = mysqli_fetch_all($bet_query, MYSQLI_ASSOC);
-            }
-
-            return $res_array;
+            return mysqli_fetch_all($bet_query, MYSQLI_ASSOC);
         } else {
             return $DB_connect->error;
         }
@@ -345,12 +418,15 @@ ORDER BY max DESC LIMIT 1
 
 /**
  * @param $DB_connect mysqli
+ * @param int $lot_id
+ * @param int $user_id
+ * @return mixed|null
+ * Обнавляет БД, добавляет ИД победителя.
  */
-function add_winners($DB_connect, $lot_id, $user_id)
+function add_winners(mysqli $DB_connect, int $lot_id, int $user_id): mixed
 {
     if (!$DB_connect) {
-        $error = $DB_connect->connect_error;
-        return $error;
+        return $DB_connect->connect_error;
     } else {
         $winner_query =
             "
@@ -363,5 +439,46 @@ WHERE id = $lot_id
         } else {
             return $DB_connect->error;
         }
+    }
+}
+
+/**
+ * @param $DB_connect mysqli
+ * @param int $id
+ * @return string|array|null
+ */
+function get_user_bet(mysqli $DB_connect, int $id): string|array|null
+{
+    if ($DB_connect) {
+        /*$sql = "
+SELECT DATE_FORMAT(b.date_bet, '%d.%m.%y в %H:%i') AS date_bet, b.price_bet, 
+l.title, l.lot_description, l.img, l.date_finish, l.id, c.name_category, l.winner_id, b.user_id
+, (SELECT contacts FROM users u JOIN lots l ON u.id = l.user_id WHERE l.winner_id = $id LIMIT 1) as contacts
+FROM (SELECT MAX(date_bet) as date_bet, MAX(price_bet) as price_bet, user_id, lot_id FROM bets WHERE user_id = $id GROUP BY lot_id) b
+JOIN lots l ON b.lot_id = l.id
+JOIN users u ON b.user_id = u.id
+JOIN categories c ON l.category_id = c.id
+WHERE b.user_id = $id
+ORDER BY b.date_bet DESC
+        ";*/
+        $sql = "
+SELECT DATE_FORMAT(b.date_bet, '%d.%m.%y в %H:%i') AS date_bet, b.price_bet, 
+l.title, l.lot_description, l.img, l.date_finish, l.id, c.name_category, l.winner_id, b.user_id
+, x.contacts
+FROM (SELECT MAX(date_bet) as date_bet, MAX(price_bet) as price_bet, user_id, lot_id FROM bets WHERE user_id = $id GROUP BY lot_id) b
+JOIN lots l ON b.lot_id = l.id
+JOIN users u ON b.user_id = u.id
+JOIN categories c ON l.category_id = c.id
+LEFT JOIN (SELECT contacts, l.id FROM users u JOIN lots l ON u.id = l.user_id WHERE l.winner_id = $id) AS x ON x.id = b.lot_id
+WHERE b.user_id = $id
+ORDER BY b.date_bet DESC
+        ";
+        $res = $DB_connect->query($sql);
+        if ($res) {
+            return $res->fetch_all(MYSQLI_ASSOC);
+        }
+        return $DB_connect->error;
+    } else {
+        return mysqli_connect_error();
     }
 }
