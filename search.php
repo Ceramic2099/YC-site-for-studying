@@ -13,7 +13,7 @@ $search = htmlspecialchars($search);
 if (!empty($search)) {
     $lot_count = get_count_lots($DB_connect, $search);
     $page_number = $_GET['page'] ?? 1;
-    $item_per_page = 2;
+    $item_per_page = 3;
     $total_page = ceil($lot_count / $item_per_page);
     $offset = ($page_number - 1) * $item_per_page;
     $pages = range(1, $total_page);

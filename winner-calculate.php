@@ -5,9 +5,7 @@ use PHPMailer\PHPMailer\Exception;
 
 require_once 'sql_init.php';
 require_once 'function.php';
-require_once './vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require_once './vendor/phpmailer/phpmailer/src/SMTP.php';
-require_once './vendor/phpmailer/phpmailer/src/Exception.php';
+require_once 'vendor/autoload.php';
 
 $lots_wo_winners = get_lots_wo_winners($DB_connect);
 

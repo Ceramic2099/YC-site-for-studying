@@ -11,7 +11,7 @@
                 </div>
                 <div>
                 <h3 class="rates__title"><a href="/lot.php?id=<?= $bet['id']; ?>"><?= $bet['title']; ?></a></h3>
-                <p><?php if ($bet['winner_id'] == $bet['user_id']):?><p><?= $bet['contacts']; ?></p><?php endif;?></p>
+                <p><?php if ($bet['winner_id'] == $bet['user_id']):?><p><?= $bet['contacts']; ?></p><?php endif; ?></p>
                 </div>
             </td>
             <td class="rates__category">
